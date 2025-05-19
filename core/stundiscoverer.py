@@ -1,7 +1,12 @@
 # StunDiscover.py
-import socket
-import time
+import socket 
+from scapy.all import *
+import struct 
+from multiprocessing import Process, Queue
 import threading
+from concurrent.futures import ThreadPoolExecutor
+import time 
+import random
 
 stun_servers = [
     ("stun.1und1.de", 3478),
@@ -156,53 +161,129 @@ stun_servers = [
 ]
 
 
+
 results = []
+bullet_funcs = []
 
-def send_probe(server):
-    ip, port = server
+
+
+class ParallelVectorEngine:
+    def __init__(self, func, data, max_workers=None):
+        """
+        func: Her eleman için çağrılacak işlem fonksiyonu
+        data: List, tuple veya np.array gibi erişilebilir veri kümesi
+        max_workers: Kaç paralel işlem oluşturulacağı (varsayılan tüm veriler kadar)
+        """
+        self.func = func
+        self.data = data
+        self.max_workers = max_workers or len(data)
+        self.queue = Queue()
+
+    def _worker(self, idx, item):
+        """Her bir işlemde çağrılacak işlev"""
+        result = self.func(idx, item)
+        self.queue.put((idx, result))
+
+    def run(self):
+        processes = []
+
+        for idx, item in enumerate(self.data):
+            p = Process(target=self._worker, args=(idx, item))
+            processes.append(p)
+            if len(processes) == self.max_workers:
+                self._launch_and_clear(processes)
+
+        # Kalanları da başlat
+        if processes:
+            self._launch_and_clear(processes)
+
+        # Sonuçları sırayla topla
+        results = [None] * len(self.data)
+        while not self.queue.empty():
+            idx, val = self.queue.get()
+            results[idx] = val
+
+        return results
+
+    def _launch_and_clear(self, processes):
+        for p in processes:
+            p.start()
+        for p in processes:
+            p.join()
+        processes.clear()
+
+
+"""
+MUST be UDP Packet For Binding Request
+MUST start with a 20-byte header followed by zero or more Attributes
+MUST contains:
+>STUN Message Type 
+>Magic Cookie
+>Transaction ID
+>Message Length
+*The most significant bit 2 bits of every STUN Message MUST be zeroes.
+
+
+"""  
+def random_ID():
+    return bytes([random.randint(0, 255) for _ in range(12)])
+
+def forgeStunPacket(ip):
+    m_type = 0x0001 #H->Unsignet Short ->2 byte
+    m_length = 0 #H->Unsignet Short ->2 byte 
+    magic_cookie = 0x2112A442 #I->Unsignet Int -> 4 byte
+    transaction_ID = random_ID() # 12 byte 
+    
+    stunHeader = struct.pack("!HHI12s", m_type, m_length,magic_cookie, transaction_ID)
+   #stunPacket = IP(dst=target)/UDP(dport=3478)/Raw(load=stunHeader)
+   #return send(stunPacket)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    sock.settimeout(3)
+    
+    start_time = time.time()
+    sock.sendto(stunHeader, (ip, 3478))
     try:
-        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        sock.settimeout(10)
-        message = str(time.time()).encode()  # Basit bir timestamp göndereceğiz
-        start = time.time()
-        sock.sendto(message, (ip, port))
-        data, addr = sock.recvfrom(1024)
-        end = time.time()
-        rtt = (end - start) * 1000  # ms cinsinden RTT
-        received_ts = float(data.decode(errors='ignore').strip())
-
-        results.append({
-            "server": ip,
-            "port": port,
-            "rtt": round(rtt, 10),
-            "response_timestamp": received_ts
-        })
+        start_time = time.time()
+        sock.sendto(stunHeader, (ip, 3478))
+        data, _ = sock.recvfrom(1024)
+        end_time = time.time()
+    except socket.timeout:
+        print(f"[×] Timeout: {ip}")
+        return
+    finally:
         sock.close()
-    except Exception as e:
-        pass  # Zaman aşımı, bağlantı yok vs.
+        
+    rtt = round((end_time - start_time) * 1000, 2)
+    
+    #Look for a transactionID
+    if data[0:2] == b'\x01\x01' and data[4:8] == b'\x21\x12\xa4\x42':
+            results.append({
+                'ip': ip,
+                'port': 3478,
+                'rtt': rtt,
+                'timestamp': end_time
+            })
+            print(f"[✓] Reply from {ip}:3478 → RTT = {rtt} ms")
 
-threads = []
+    else:
+            print(f"[!] Invalid STUN reply from {ip}")
 
-for server in stun_servers:
-    t = threading.Thread(target=send_probe, args=(server,))
-    t.start()
-    threads.append(t)
+    sock.close()
 
-for t in threads:
-    t.join()
+ 
+def reload_and_fire():
+    ips = [ip for ip, _ in stun_servers]
 
-# En hızlı 3 STUN server
-sorted_results = sorted(results, key=lambda x: x["rtt"])
-best = sorted_results[:3]
+    engine = ParallelVectorEngine(lambda i, ip: forgeStunPacket(ip), ips, max_workers=60)
+    engine.run()
+    
+def discover():
+    reload_and_fire()
+    sorted_results = sorted(results, key=lambda x: x['rtt'])
+    print("\n=== BEST 3 STUN SERVERS ===")
+    for r in sorted_results[:3]:
+        print(f"> {r['ip']}:{r['port']} | RTT: {r['rtt']} ms")
 
-print("\n=== STUN Discovery Results ===")
-for entry in best:
-    print(f"{entry['server']}:{entry['port']} → RTT: {entry['rtt']} ms | ServerTime: {entry['response_timestamp']}")
-
-if best:
-    selected = best[0]
-    print(f"\n✅ Selected STUN Server → {selected['server']}:{selected['port']}")
-else:
-    print("\n❌ No STUN server responded.")
-
-
+if __name__ == "__main__":
+    discover()
+    
