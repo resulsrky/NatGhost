@@ -7,14 +7,11 @@ import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time 
 import random
-from dns import * 
-import dns.resolver
+from dns import reversename, resolver
 import asyncio
 import requests
 from ipwhois import IPWhois
 import ipaddress
-
-
 
 
 stun_servers = [
@@ -176,6 +173,16 @@ dynamic_lock = threading.Lock()
 results = []
 bullet_funcs = []
 
+def get_cidr_block(public_ip):
+    obj = IPWhois(public_ip)
+    result = obj.lookup_rdap()
+    return result.get('network', {}).get('cidr')
+
+def get_hosts_from_cidr(cidr):
+    net = ipaddress.ip_network(cidr, strict=False)
+    return [str(ip) for ip in net.hosts()]
+
+
 
 def thread_worker(name, targets):
     for host in targets:
@@ -183,6 +190,7 @@ def thread_worker(name, targets):
             if host in dynamic_found:
                 continue
         forgeStunPacket(host)
+        
         
 def process1_static_threader():
     n = len(stun_servers)
@@ -257,7 +265,17 @@ def resolve_all_types(domain):
         executor.submit(resolve_record, domain, "AAAA")
 
 def reverse_bruteforce():
-    pass     
+    found_domains = []
+    for ip in ip_list:
+        try:
+                rev_name = reversename.from_address(ip)
+                answer = resolver.resolve(rev_name, "PTR", lifetime=2)
+                for r in answer:
+                    if "stun" in str(r).lower():
+                        found_domains.append(str(r).rstrip('.'))
+        except:
+            continue
+    return found_domains    
 
 
 

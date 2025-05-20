@@ -5,7 +5,7 @@ Description:
   Aynı anda aşağıdaki işlemleri gerçekleştiren dinamik STUN sunucu tarayıcısı:
   - DNS SRV taraması (_stun._udp.<domain>)
   - A/AAAA kaydı çözümleme
-  - Ters DNS brute-force (alt alan adları üzerinden)
+  - Ters DNS brute-force (alt alan adları üinden)
 """
 
 
