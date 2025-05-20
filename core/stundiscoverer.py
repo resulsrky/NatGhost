@@ -3,16 +3,19 @@ import socket
 from scapy.all import *
 import struct 
 from multiprocessing import Process, Queue
+import multiprocessing
+import dns.resolver
 import threading
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time 
 import random
+import dns
 from dns import reversename, resolver
 import asyncio
 import requests
 from ipwhois import IPWhois
 import ipaddress
-
+from netaddr import IPNetwork
 
 stun_servers = [
     ("stun.1und1.de", 3478),
@@ -185,11 +188,12 @@ def get_hosts_from_cidr(cidr):
 
 
 def thread_worker(name, targets):
-    for host in targets:
+    for host, port in targets:  # unpack tuple
         with dynamic_lock:
             if host in dynamic_found:
                 continue
-        forgeStunPacket(host)
+        forgeStunPacket(host, port)
+
         
         
 def process1_static_threader():
@@ -264,19 +268,43 @@ def resolve_all_types(domain):
         executor.submit(resolve_record, domain, "A")
         executor.submit(resolve_record, domain, "AAAA")
 
+def estimate_cidr_block(ip, bits=24):
+    from netaddr import IPNetwork
+    try:
+        return str(IPNetwork(f"{ip}/{bits}"))
+    except:
+        return None
+
 def reverse_bruteforce():
-    found_domains = []
-    for ip in ip_list:
+    found_domains = set()
+
+    for ip in dynamic_found:
         try:
-                rev_name = reversename.from_address(ip)
+            ip = str(ip)
+            if not ipaddress.ip_address(ip).is_global:
+                continue
+        except ValueError:
+            continue
+
+        # Tahmini CIDR bloğunu al (örneğin /24)
+        cidr = estimate_cidr_block(ip, bits=24)
+        if not cidr:
+            continue
+
+        # Reverse brute-force yap
+        for host in IPNetwork(cidr):
+            try:
+                rev_name = reversename.from_address(str(host))
                 answer = resolver.resolve(rev_name, "PTR", lifetime=2)
                 for r in answer:
-                    if "stun" in str(r).lower():
-                        found_domains.append(str(r).rstrip('.'))
-        except:
-            continue
-    return found_domains    
+                    r_str = str(r).rstrip('.')
+                    if "stun" in r_str.lower():
+                        found_domains.add(r_str)
+                        print(f"[PTR ✓] {host} → {r_str}")
+            except:
+                continue
 
+    return list(found_domains)
 
 
 class ParallelVectorEngine:
@@ -335,66 +363,98 @@ MUST contains:
 """  
 def random_ID():
     return bytes([random.randint(0, 255) for _ in range(12)])
-
-def forgeStunPacket(ip):
+def forgeStunPacket(ip, port=3478):
     try:
         m_type = 0x0001 
         m_length = 0 
         magic_cookie = 0x2112A442 
         transaction_ID = random_ID() 
 
-        stunHeader = struct.pack("!HHI12s", m_type, m_length,magic_cookie, transaction_ID)
-   
+        stunHeader = struct.pack("!HHI12s", m_type, m_length, magic_cookie, transaction_ID)
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         sock.settimeout(3)
-    
 
         try:
             start_time = time.time()
-            sock.sendto(stunHeader, (ip, 3478))
+            sock.sendto(stunHeader, (ip, port))
             data, _ = sock.recvfrom(1024)
             end_time = time.time()
         except socket.timeout:
             print(f"[×] Timeout: {ip}")
             return
+        except Exception as e:
+            print(f"[×] General Error: {ip} → {e}")
+            return
         finally:
             sock.close()
-    except Exception:
-        print(f"[×] Error: {ip}")
-        pass 
-    
-    rtt = round((end_time - start_time) * 1000, 2)
-    
 
-    if data[0:2] == b'\x01\x01' and data[4:8] == b'\x21\x12\xa4\x42':
+        if data[0:2] == b'\x01\x01' and data[4:8] == b'\x21\x12\xa4\x42':
+            rtt = round((end_time - start_time) * 1000, 2)
             results.append({
                 'ip': ip,
-                'port': 3478,
+                'port': port,
                 'rtt': rtt,
                 'timestamp': end_time
             })
-            print(f"[✓] Reply from {ip}:3478 → RTT = {rtt} ms")
+            print(f"[✓] Reply from {ip}:{port} → RTT = {rtt} ms")
+        else:
+            print(f"[!] Invalid STUN reply from {ip}:{port}")
 
-    else:
-            print(f"[!] Invalid STUN reply from {ip}")
+    except Exception as e:
+        print(f"[×] Error: {ip}:{port} → {e}")
 
-    sock.close()
 
  
 def reload_and_fire():
-    ips = [ip for ip, _ in stun_servers]
-
-    engine = ParallelVectorEngine(lambda i, ip: forgeStunPacket(ip), ips, max_workers=60)
+    engine = ParallelVectorEngine(lambda i, pair: forgeStunPacket(pair[0], pair[1]), stun_servers, max_workers=60)
     engine.run()
+    print("[*] Reloading and firing STUN packets...")
 
 
-def discover():
-    reload_and_fire()
+def run_p1():
+    process1_static_threader()  
+
+def run_p2():
+    process2_static_threader()
+
+def run_reverse_brute():
+    reverse_bruteforce()
+    found = reverse_bruteforce()
+    print(f"[*] Reverse DNS brute-force found {len(found)} stun-related domains.")
+def deduplicate_dynamic_results():
+
+    global results
+    with dynamic_lock:
+        dynamic_hosts = set(dynamic_found)
+    before = len(results)
+    results = [r for r in results if r['ip'] not in dynamic_hosts]
+    after = len(results)
+    print(f"[!] {before - after} entry removed due to overlap with dynamic results")
+
+def main():
+    p1 = multiprocessing.Process(target=run_p1)
+    p2 = multiprocessing.Process(target=run_p2)
+    p3 = multiprocessing.Process(target=run_reverse_brute)
+
+    print("[*] Starting P1 (ParallelVectorEngine fire)...")
+    p1.start()
+    print("[*] Starting P2 (DNS-based)...")
+    p2.start()
+    print("[*] Starting P3 (Reverse brute)...")
+    p3.start()
+
+    p1.join()
+    p2.join()
+    p3.join()
+
+    print("\n[*] Deduplicating overlapping entries...")
+    deduplicate_dynamic_results()
+
+    print("\n[*] Final RTT Analysis (Best 5 STUN Servers):")
     sorted_results = sorted(results, key=lambda x: x['rtt'])
-    print("\n=== BEST 3 STUN SERVERS ===")
-    for r in sorted_results[:3]:
-        print(f"> {r['ip']}:{r['port']} | RTT: {r['rtt']} ms")
+    for r in sorted_results[:5]:
+        print(f"→ {r['ip']}:{r['port']} | RTT: {r['rtt']} ms")
+
 
 if __name__ == "__main__":
-    discover()
-    
+    main()
