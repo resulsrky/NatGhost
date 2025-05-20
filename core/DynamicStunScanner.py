@@ -8,6 +8,7 @@ Description:
   - Ters DNS brute-force (alt alan adları üzerinden)
 """
 
+
 import dns.resolver
 import dns.reversename
 import dns.exception

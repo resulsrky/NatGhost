@@ -4,9 +4,18 @@ from scapy.all import *
 import struct 
 from multiprocessing import Process, Queue
 import threading
-from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import time 
 import random
+from dns import * 
+import dns.resolver
+import asyncio
+import requests
+from ipwhois import IPWhois
+import ipaddress
+
+
+
 
 stun_servers = [
     ("stun.1und1.de", 3478),
@@ -161,26 +170,107 @@ stun_servers = [
 ]
 
 
+dynamic_found = set()
+dynamic_lock = threading.Lock()
 
 results = []
 bullet_funcs = []
 
 
+def thread_worker(name, targets):
+    for host in targets:
+        with dynamic_lock:
+            if host in dynamic_found:
+                continue
+        forgeStunPacket(host)
+        
+def process1_static_threader():
+    n = len(stun_servers)
+    threads = []
+    
+    ranges = [
+        stun_servers[0:n//2],
+        stun_servers[n//2:n],
+        list(reversed(stun_servers)),
+        stun_servers[n//4:3*n//4]
+    ]
+
+    for i, chunk in enumerate(ranges):
+        t = threading.Thread(target=thread_worker, args=(f"P1-Thread-{i}", chunk))
+        threads.append(t)
+        t.start()
+    for t in threads:
+        t.join()
+
+
+
+
+def process2_static_threader():
+    domains = [
+    "_stun._udp.google.com",
+    "_stun._udp.1und1.de",
+    "_stun._udp.linphone.org",
+    "_stun._udp.counterpath.net",
+    "_stun._udp.callwithus.com",
+    "_stun._udp.sipgate.net",
+    "_stun._udp.gmx.net",
+    "_stun._udp.iptel.org",
+    "_stun._udp.schlund.de",
+    "_stun._udp.voipbuster.com",
+    "_stun._udp.12connect.com",
+    "_stun._udp.3cx.com",
+    "_stun._udp.t-online.de",
+    "_stun._udp.vline.com",
+    "_stun._udp.miwifi.com",
+    "_stun._udp.voiparound.com",
+    "_stun._udp.ekiga.net",
+    "_stun._udp.jumblo.com",
+
+            ]   
+    srv_domains = [f"_stun._udp.{d}" for d in domains]
+
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        futures = [executor.submit(resolve_all_types, d) for d in srv_domains + domains]
+
+        for future in as_completed(futures):
+            pass  # 
+
+
+
+
+def resolve_record(domain, rtype):
+    try:
+        answers = dns.resolver.resolve(domain, rtype, lifetime=2)
+        with dynamic_lock:
+            for r in answers:
+                if rtype == "SRV":
+                    dynamic_found.add(str(r.target).rstrip('.'))
+                else:
+                    dynamic_found.add(str(r).rstrip('.'))
+    except:
+        pass
+
+def resolve_all_types(domain):
+    with ThreadPoolExecutor(max_workers=3) as executor:
+        executor.submit(resolve_record, domain, "SRV")
+        executor.submit(resolve_record, domain, "A")
+        executor.submit(resolve_record, domain, "AAAA")
+
+def reverse_bruteforce():
+    pass     
+
+
 
 class ParallelVectorEngine:
     def __init__(self, func, data, max_workers=None):
-        """
-        func: Her eleman için çağrılacak işlem fonksiyonu
-        data: List, tuple veya np.array gibi erişilebilir veri kümesi
-        max_workers: Kaç paralel işlem oluşturulacağı (varsayılan tüm veriler kadar)
-        """
+
         self.func = func
         self.data = data
         self.max_workers = max_workers or len(data)
         self.queue = Queue()
 
     def _worker(self, idx, item):
-        """Her bir işlemde çağrılacak işlev"""
+        
         result = self.func(idx, item)
         self.queue.put((idx, result))
 
@@ -193,11 +283,11 @@ class ParallelVectorEngine:
             if len(processes) == self.max_workers:
                 self._launch_and_clear(processes)
 
-        # Kalanları da başlat
+        
         if processes:
             self._launch_and_clear(processes)
 
-        # Sonuçları sırayla topla
+
         results = [None] * len(self.data)
         while not self.queue.empty():
             idx, val = self.queue.get()
@@ -229,33 +319,35 @@ def random_ID():
     return bytes([random.randint(0, 255) for _ in range(12)])
 
 def forgeStunPacket(ip):
-    m_type = 0x0001 #H->Unsignet Short ->2 byte
-    m_length = 0 #H->Unsignet Short ->2 byte 
-    magic_cookie = 0x2112A442 #I->Unsignet Int -> 4 byte
-    transaction_ID = random_ID() # 12 byte 
-    
-    stunHeader = struct.pack("!HHI12s", m_type, m_length,magic_cookie, transaction_ID)
-   #stunPacket = IP(dst=target)/UDP(dport=3478)/Raw(load=stunHeader)
-   #return send(stunPacket)
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    sock.settimeout(3)
-    
-    start_time = time.time()
-    sock.sendto(stunHeader, (ip, 3478))
     try:
-        start_time = time.time()
-        sock.sendto(stunHeader, (ip, 3478))
-        data, _ = sock.recvfrom(1024)
-        end_time = time.time()
-    except socket.timeout:
-        print(f"[×] Timeout: {ip}")
-        return
-    finally:
-        sock.close()
-        
+        m_type = 0x0001 
+        m_length = 0 
+        magic_cookie = 0x2112A442 
+        transaction_ID = random_ID() 
+
+        stunHeader = struct.pack("!HHI12s", m_type, m_length,magic_cookie, transaction_ID)
+   
+        sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sock.settimeout(3)
+    
+
+        try:
+            start_time = time.time()
+            sock.sendto(stunHeader, (ip, 3478))
+            data, _ = sock.recvfrom(1024)
+            end_time = time.time()
+        except socket.timeout:
+            print(f"[×] Timeout: {ip}")
+            return
+        finally:
+            sock.close()
+    except Exception:
+        print(f"[×] Error: {ip}")
+        pass 
+    
     rtt = round((end_time - start_time) * 1000, 2)
     
-    #Look for a transactionID
+
     if data[0:2] == b'\x01\x01' and data[4:8] == b'\x21\x12\xa4\x42':
             results.append({
                 'ip': ip,
@@ -276,7 +368,8 @@ def reload_and_fire():
 
     engine = ParallelVectorEngine(lambda i, ip: forgeStunPacket(ip), ips, max_workers=60)
     engine.run()
-    
+
+
 def discover():
     reload_and_fire()
     sorted_results = sorted(results, key=lambda x: x['rtt'])

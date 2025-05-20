@@ -1,12 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""
-Created on Sat May 17 14:14:12 2025
-
-@author: Abdurrahman Karadağ
-"""
-
-
 # udp_flooder.py
 from scapy.all import IP, UDP, Raw, send
 from time import sleep, time
