@@ -14,6 +14,8 @@
 #include <sys/uio.h>        // recvmmsg
 #include <fcntl.h>
 #include <pthread.h>
+#include <sys/mman.h>
+
 
 #define MAX_STUN       100
 #define BATCH_SIZE     64
@@ -67,7 +69,10 @@ void load_stun_servers() {
 }
 
 int parse_xor_mapped_address(uint8_t *buf, int len, char *out_ip, uint16_t *out_port) {
-    if (len < 20) return -1;
+if (len < 20) {
+    printf(" Invalid STUN packet size: %d bytes\n", len);
+    return -1;
+}
     const uint8_t *attr = buf + 20;
     int remain = len - 20;
     while (remain >= 4) {
@@ -75,6 +80,8 @@ int parse_xor_mapped_address(uint8_t *buf, int len, char *out_ip, uint16_t *out_
         uint16_t alen = (attr[2] << 8) | attr[3];
         if (type == 0x0020 && alen >= 8) {
             uint8_t family = attr[5];
+            printf("No XOR-MAPPED-ADDRESS attr found (type=%04x len=%d)\n", type, alen);
+
             if (family == 0x01) {
                 uint16_t xor_port = (attr[6] << 8) | attr[7];
                 *out_port = xor_port ^ ((MAGIC_COOKIE >> 16) & 0xFFFF);
@@ -151,6 +158,10 @@ void listener_loop() {
                         parse_xor_mapped_address(bufs[m], msgs[m].msg_len,
                                                  stun_list[k].public_ip,
                                                  &stun_list[k].public_port);
+     printf(" DEBUG ATTR: STUN response from %s (%s) => %s:%d\n",
+       stun_list[k].host, stun_list[k].ip_str,
+       stun_list[k].public_ip, stun_list[k].public_port);
+
                         pthread_mutex_unlock(&lock);
                         break;
                     }
@@ -189,6 +200,14 @@ void get_ordered_indices(int *ordered, int max) {
     }
 }
 
+// Dönen cevap geçerli mi?
+static inline int is_valid_stun(int i) {
+    // public_ip dolu ve public_port sıfırdan farklıysa geçerli
+    return stun_list[i].public_ip[0] != '\0'
+        && stun_list[i].public_port != 0;
+}
+
+
 int main() {
     srand(time(NULL));
     load_stun_servers();
@@ -214,6 +233,17 @@ int main() {
     // receive & parse
     listener_loop();
     close(sock_fd);
+    // İlk burst tamamlandı; şimdi en hızlısı parse edilemediyse retry listesi hazırla
+int retry_targets[MAX_STUN];
+int retry_count = 0;
+
+// Tüm sunucular arasında dön, parse başarısız ama RTT var ise ekle
+for (int i = 0; i < stun_count; i++) {
+    if (stun_list[i].rtt_ms >= 0 && !is_valid_stun(i)) {
+        retry_targets[retry_count++] = i;
+    }
+}
+
     // sort by rtt
     for (int i=0; i<stun_count; i++) {
         for (int j=i+1; j<stun_count; j++) {
@@ -226,7 +256,7 @@ int main() {
         }
     }
     // print
-    printf("\n🏁 En hızlı 5 STUN sunucusu (IP tabanlı):\n");
+    printf("\nEn hızlı 5 STUN sunucusu (IP tabanlı):\n");
     for (int i=0, c=0; i<stun_count && c<5; i++) {
         if (stun_list[i].rtt_ms>=0) {
             printf(" [%3ld ms] %s (%s:%d) => %s:%d\n",
@@ -250,12 +280,12 @@ int main() {
                stun_list[best].public_port,
                stun_list[best].rtt_ms);
     } else {
-        printf("\n⚠️ Hiç STUN cevabı alınamadı.\n");
+        printf("\nHiç STUN cevabı alınamadı.\n");
     }
     // failover list if needed
     int ordered[5];
     get_ordered_indices(ordered, 5);
-    printf("\n🔁 Failover listesi:\n");
+    printf("\nFailover listesi:\n");
     for (int i=0; i<5; i++) {
         int idx = ordered[i];
         if (idx>=0) {
@@ -268,6 +298,18 @@ int main() {
                    stun_list[idx].public_port,
                    stun_list[idx].rtt_ms);
         }
+printf("DEBUG: Writing to SHM: %s:%d\n", stun_list[best].public_ip, stun_list[best].public_port);
+
+int shm_fd = shm_open("/natghost_shm", O_CREAT | O_RDWR, 0666);
+ftruncate(shm_fd, 64);  // 64 byte yeterli
+void* addr = mmap(0, 64, PROT_WRITE, MAP_SHARED, shm_fd, 0);
+
+snprintf((char*)addr, 64, "%s:%d", stun_list[best].public_ip, stun_list[best].public_port);
+
+munmap(addr, 64);
+close(shm_fd);
     }
     return 0;
 }
+// Compile with: gcc -o stun_client stun_client.c -lpthread
+// Run with: ./stun_client

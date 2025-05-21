@@ -3,17 +3,7 @@ from scapy.all import IP, UDP, Raw, send
 from time import sleep, time
 
 def send_udp_flood(dst_ip, dst_port=80, src_port=4444, count=20, delay=0.1, payload="PING"):
-    """
-    Aynı source port ve IP ile hedefe forge UDP paketleri gönderir
-    
-    Args:
-        dst_ip (str): Target IP Address
-        dst_port (int): Targer Port Address
-        src_port (int):Same source port (must be the same as TCP)
-        count (int): Kaç adet UDP paketi gönderilecek
-        delay (float):  (waiting time between packets(seconds)
-        payload (str): UDP content payload
-    """
+
     print(f"[+] Sending UDP packets to {dst_ip}:{dst_port} from port {src_port}")
     start_time = time()
 
