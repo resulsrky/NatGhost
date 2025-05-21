@@ -131,6 +131,71 @@ void listener_loop() {
     close(epfd);
 }
 
+int get_fastest_stun_index() {
+    int best = -1;
+    for (int i = 0; i < stun_count; i++) {
+        if (stun_list[i].rtt_ms >= 0) {
+            if (best == -1 || stun_list[i].rtt_ms < stun_list[best].rtt_ms) {
+                best = i;
+            }
+        }
+    }
+    return best;
+}
+
+void get_ordered_indices(int *ordered, int max) {
+    int used[MAX_STUN] = {0};
+    for (int i = 0; i < max; i++) {
+        int best = -1;
+        for (int j = 0; j < stun_count; j++) {
+            if (!used[j] && stun_list[j].rtt_ms >= 0) {
+                if (best == -1 || stun_list[j].rtt_ms < stun_list[best].rtt_ms) {
+                    best = j;
+                }
+            }
+        }
+        if (best != -1) {
+            ordered[i] = best;
+            used[best] = 1;
+        } else {
+            ordered[i] = -1;
+        }
+    }
+}
+
+int parse_xor_mapped_address(uint8_t *buf, int len, char *out_ip, uint16_t *out_port) {
+    if (len < 20) return -1;
+    const uint8_t *attr = buf + 20;
+    int remain = len - 20;
+
+    while (remain >= 4) {
+        uint16_t type = (attr[0] << 8) | attr[1];
+        uint16_t alen = (attr[2] << 8) | attr[3];
+
+        if (type == 0x0020 && alen >= 8) {
+            uint8_t family = attr[5];
+            if (family == 0x01) { // IPv4
+                uint16_t xor_port = (attr[6] << 8) | attr[7];
+                *out_port = xor_port ^ ((MAGIC_COOKIE >> 16) & 0xFFFF);
+
+                uint32_t xor_ip;
+                memcpy(&xor_ip, attr + 8, 4);
+                xor_ip ^= htonl(MAGIC_COOKIE);
+                inet_ntop(AF_INET, &xor_ip, out_ip, INET_ADDRSTRLEN);
+                return 0;
+            }
+        }
+
+        int skip = 4 + alen;
+        if (alen % 4 != 0) skip += 4 - (alen % 4); // padding
+        attr += skip;
+        remain -= skip;
+    }
+    return -1;
+}
+
+
+
 int main(){
     srand(time(NULL));
     load_stun_servers();
@@ -173,6 +238,29 @@ for(int i=0, c=0; i<stun_count && c<5; i++) {
         c++;
     }
 }
+int best = get_fastest_stun_index();
+if (best >= 0) {
+    printf("\n✅ En hızlı sunucu seçildi: %s (%s:%d) - %ld ms\n",
+        stun_list[best].ip_str,
+        stun_list[best].host,
+        stun_list[best].port,
+        stun_list[best].rtt_ms);
+} else {
+    printf("\n⚠️ Hiçbir sunucudan zamanında yanıt alınamadı.\n");
+}
+int ordered[5];
+get_ordered_indices(ordered, 5);
+printf("\n🔁 Failover listesi (en hızlıdan sırayla):\n");
+for (int i = 0; i < 5; i++) {
+    if (ordered[i] >= 0)
+        printf("  #%d - %s (%s:%d) [%ld ms]\n", i+1,
+            stun_list[ordered[i]].ip_str,
+            stun_list[ordered[i]].host,
+            stun_list[ordered[i]].port,
+            stun_list[ordered[i]].rtt_ms);
+}
+
+
 
     return 0;
 }
