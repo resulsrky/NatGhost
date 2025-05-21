@@ -1,0 +1,147 @@
+02:42:44.708799 IP 202.239.2.248.https > pop-os.41992: Flags [.], ack 3307256303, win 24, options [nop,nop,TS val 3593965587 ecr 1257407867], length 0
+02:42:45.538594 IP pop-os.37965 > _gateway.domain: 27191+ PTR? 47.112.168.192.in-addr.arpa. (45)
+02:42:45.552968 IP pop-os.43219 > _gateway.domain: 15822+ PTR? 137.112.168.192.in-addr.arpa. (46)
+02:42:45.631540 IP _gateway.domain > pop-os.37965: 27191 NXDomain 0/0/0 (45)
+02:42:45.643387 IP _gateway.domain > pop-os.43219: 15822 NXDomain 0/1/0 (81)
+02:42:45.645223 IP pop-os.58588 > _gateway.domain: 42340+ PTR? 248.2.239.202.in-addr.arpa. (44)
+02:42:46.553451 IP _gateway.domain > pop-os.58588: 42340 NXDomain 0/1/0 (102)
+02:42:46.559252 IP pop-os.55703 > _gateway.domain: 52726+ PTR? 47.112.168.192.in-addr.arpa. (45)
+02:42:46.570860 IP _gateway.domain > pop-os.55703: 52726 NXDomain 0/0/0 (45)
+02:42:47.095815 IP pop-os.33824 > 239.255.255.250.1900: UDP, length 165
+02:42:47.575235 IP pop-os.53694 > _gateway.domain: 9859+ PTR? 250.255.255.239.in-addr.arpa. (46)
+02:42:48.089591 IP _gateway.domain > pop-os.53694: 9859 NXDomain 0/1/0 (103)
+02:42:48.096522 IP pop-os.33824 > 239.255.255.250.1900: UDP, length 165
+02:42:48.341165 IP pop-os.44706 > server-108-157-60-49.ist50.r.cloudfront.net.https: Flags [.], ack 3378000712, win 4921, options [nop,nop,TS val 1486704203 ecr 2832939559], length 0
+02:42:48.341196 IP pop-os.55870 > haproxy-eu-012.roqad.pl.https: Flags [.], ack 3659149527, win 609, options [nop,nop,TS val 2226644087 ecr 1255150014], length 0
+02:42:48.341201 IP pop-os.49876 > 195.175.181.146.static.turktelekom.com.tr.https: Flags [.], ack 2408163402, win 610, options [nop,nop,TS val 2860374696 ecr 638275253], length 0
+02:42:48.409680 IP server-108-157-60-49.ist50.r.cloudfront.net.https > pop-os.44706: Flags [.], ack 1, win 172, options [nop,nop,TS val 2832988510 ecr 1486516675], length 0
+02:42:48.409974 IP 195.175.181.146.static.turktelekom.com.tr.https > pop-os.49876: Flags [.], ack 1, win 501, options [nop,nop,TS val 638320443 ecr 2860329525], length 0
+02:42:48.430159 IP haproxy-eu-012.roqad.pl.https > pop-os.55870: Flags [.], ack 1, win 501, options [nop,nop,TS val 1255198864 ecr 2226595198], length 0
+02:42:48.598145 IP pop-os.52778 > _gateway.domain: 59377+ PTR? 49.60.157.108.in-addr.arpa. (44)
+02:42:48.931897 IP pop-os.54321 > wq-in-f127.1e100.net.3478: UDP, length 20
+02:42:48.931944 IP pop-os.54321 > wq-in-f127.1e100.net.19302: UDP, length 20
+02:42:48.932047 IP pop-os.54321 > wq-in-f127.1e100.net.3479: UDP, length 20
+02:42:48.932060 IP pop-os.54321 > wq-in-f127.1e100.net.19305: UDP, length 20
+02:42:48.932088 IP pop-os.54321 > wq-in-f127.1e100.net.5349: UDP, length 20
+02:42:48.932420 IP pop-os.54321 > wq-in-f127.1e100.net.https: UDP, length 20
+02:42:48.932475 IP pop-os.54321 > 62.146.106.170.3478: UDP, length 20
+02:42:48.932526 IP pop-os.54321 > 62.146.106.170.19302: UDP, length 20
+02:42:48.932621 IP pop-os.54321 > 62.146.106.170.19305: UDP, length 20
+02:42:48.932721 IP pop-os.54321 > 62.146.106.170.3479: UDP, length 20
+02:42:48.932740 IP pop-os.54321 > 62.146.106.170.5349: UDP, length 20
+02:42:48.932806 IP pop-os.54321 > 62.146.106.170.https: UDP, length 20
+02:42:48.932856 IP pop-os.54321 > 212.227.15.195.3478: UDP, length 20
+02:42:48.932915 IP pop-os.54321 > 212.227.15.195.19302: UDP, length 20
+02:42:48.932967 IP pop-os.54321 > 212.227.15.195.19305: UDP, length 20
+02:42:48.933054 IP pop-os.54321 > 212.227.15.195.3479: UDP, length 20
+02:42:48.933168 IP pop-os.54321 > 212.227.15.195.5349: UDP, length 20
+02:42:48.933233 IP pop-os.54321 > 212.227.15.195.https: UDP, length 20
+02:42:48.933295 IP pop-os.54321 > 212.227.124.134.3478: UDP, length 20
+02:42:48.933341 IP pop-os.54321 > 212.227.124.134.19302: UDP, length 20
+02:42:48.933456 IP pop-os.54321 > 212.227.124.134.19305: UDP, length 20
+02:42:48.933518 IP pop-os.54321 > 212.227.124.134.3479: UDP, length 20
+02:42:48.933569 IP pop-os.54321 > 212.227.124.134.5349: UDP, length 20
+02:42:48.933679 IP pop-os.54321 > 178.237.36.52.3478: UDP, length 20
+02:42:48.933739 IP pop-os.54321 > 178.237.36.52.19302: UDP, length 20
+02:42:48.933749 IP pop-os.54321 > 212.227.124.134.https: UDP, length 20
+02:42:48.933812 IP pop-os.54321 > 178.237.36.52.19305: UDP, length 20
+02:42:48.933924 IP pop-os.54321 > 178.237.36.52.3479: UDP, length 20
+02:42:48.933961 IP pop-os.54321 > 178.237.36.52.5349: UDP, length 20
+02:42:48.934032 IP pop-os.54321 > 178.237.36.52.https: UDP, length 20
+02:42:48.934096 IP pop-os.54321 > 195.185.214.194.3478: UDP, length 20
+02:42:48.934149 IP pop-os.54321 > 195.185.214.194.19302: UDP, length 20
+02:42:48.934245 IP pop-os.54321 > 195.185.214.194.19305: UDP, length 20
+02:42:48.934324 IP pop-os.54321 > 195.185.214.194.3479: UDP, length 20
+02:42:48.934406 IP pop-os.54321 > 195.185.214.194.5349: UDP, length 20
+02:42:48.934458 IP pop-os.54321 > 195.185.214.194.https: UDP, length 20
+02:42:48.934551 IP _gateway.domain > pop-os.52778: 59377 1/0/0 PTR server-108-157-60-49.ist50.r.cloudfront.net. (101)
+02:42:48.935355 IP pop-os.34721 > _gateway.domain: 8516+ PTR? 109.18.129.57.in-addr.arpa. (44)
+02:42:49.010962 IP _gateway.domain > pop-os.34721: 8516 1/0/0 PTR haproxy-eu-012.roqad.pl. (81)
+02:42:49.012188 IP pop-os.38211 > _gateway.domain: 59477+ PTR? 146.181.175.195.in-addr.arpa. (46)
+02:42:49.097678 IP pop-os.33824 > 239.255.255.250.1900: UDP, length 165
+02:42:49.100435 IP _gateway.domain > pop-os.38211: 59477 1/0/0 PTR 195.175.181.146.static.turktelekom.com.tr. (101)
+02:42:49.100740 IP wq-in-f127.1e100.net > pop-os: ICMP wq-in-f127.1e100.net udp port https unreachable, length 36
+02:42:49.365264 IP pop-os.56156 > 207.65.33.84.https: Flags [.], ack 1667510847, win 590, options [nop,nop,TS val 788723983 ecr 4027802077], length 0
+02:42:49.623400 IP pop-os.60847 > _gateway.domain: 53929+ PTR? 127.140.125.74.in-addr.arpa. (45)
+02:42:49.623962 IP haproxy-eu-012.roqad.pl.https > pop-os.55870: Flags [F.], seq 1, ack 1, win 501, options [nop,nop,TS val 1255199970 ecr 2226595198], length 0
+02:42:49.624297 IP 207.65.33.84.https > pop-os.56156: Flags [.], ack 1, win 9130, options [nop,nop,TS val 4027847633 ecr 788678674], length 0
+02:42:49.624356 IP pop-os.55870 > haproxy-eu-012.roqad.pl.https: Flags [F.], seq 1, ack 2, win 609, options [nop,nop,TS val 2226645370 ecr 1255199970], length 0
+02:42:49.917340 IP pop-os.55870 > haproxy-eu-012.roqad.pl.https: Flags [F.], seq 1, ack 2, win 609, options [nop,nop,TS val 2226645663 ecr 1255199970], length 0
+02:42:49.919777 IP _gateway.domain > pop-os.60847: 53929 1/0/0 PTR wq-in-f127.1e100.net. (79)
+02:42:49.920247 IP haproxy-eu-012.roqad.pl.https > pop-os.55870: Flags [.], ack 2, win 501, options [nop,nop,TS val 1255200134 ecr 2226645370], length 0
+02:42:49.921259 IP pop-os.58435 > _gateway.domain: 47999+ PTR? 170.106.146.62.in-addr.arpa. (45)
+02:42:50.098325 IP pop-os.33824 > 239.255.255.250.1900: UDP, length 165
+02:42:50.101175 IP _gateway.domain > pop-os.58435: 47999 NXDomain 0/1/0 (110)
+02:42:50.101494 IP haproxy-eu-012.roqad.pl.https > pop-os.55870: Flags [.], ack 2, win 501, options [nop,nop,TS val 1255200444 ecr 2226645370], length 0
+02:42:50.101527 IP pop-os.55870 > haproxy-eu-012.roqad.pl.https: Flags [R], seq 3905051405, win 0, length 0
+02:42:50.102893 IP pop-os.46517 > _gateway.domain: 37406+ PTR? 195.15.227.212.in-addr.arpa. (45)
+02:42:50.239994 IP _gateway.domain > pop-os.46517: 37406 NXDomain 0/1/0 (110)
+02:42:50.241787 IP pop-os.60765 > _gateway.domain: 12179+ PTR? 134.124.227.212.in-addr.arpa. (46)
+02:42:50.547081 IP _gateway.domain > pop-os.60765: 12179 NXDomain 0/1/0 (111)
+02:42:50.548065 IP pop-os.59451 > _gateway.domain: 8456+ PTR? 52.36.237.178.in-addr.arpa. (44)
+02:42:50.553489 IP pop-os.59994 > _gateway.domain: 48854+ PTR? 47.112.168.192.in-addr.arpa. (45)
+02:42:50.560021 IP _gateway.domain > pop-os.59994: 48854 NXDomain 0/0/0 (45)
+02:42:50.582143 IP 52.94.222.140.https > pop-os.54914: Flags [F.], seq 491006273, ack 82416078, win 930, length 0
+02:42:50.582200 IP pop-os.54914 > 52.94.222.140.https: Flags [.], ack 4294967272, win 599, options [nop,nop,sack 1 {0:1}], length 0
+02:42:50.582504 IP 52.94.222.140.https > pop-os.54914: Flags [P.], seq 4294967272:0, ack 1, win 930, length 24
+02:42:50.582519 IP pop-os.54914 > 52.94.222.140.https: Flags [.], ack 1, win 599, length 0
+02:42:50.854254 IP _gateway.domain > pop-os.59451: 8456 NXDomain 0/1/0 (110)
+02:42:50.856033 IP pop-os.50517 > _gateway.domain: 29839+ PTR? 194.214.185.195.in-addr.arpa. (46)
+02:42:51.161343 IP _gateway.domain > pop-os.50517: 29839 NXDomain 0/1/0 (106)
+02:42:51.161671 IP 942.bm-nginx-loadbalancer.mgmt.ams3.adnexus.net.https > pop-os.50278: Flags [P.], seq 3469627278:3469627324, ack 705840406, win 83, options [nop,nop,TS val 3291513233 ecr 3016025781], length 46
+02:42:51.162060 IP pop-os.58458 > _gateway.domain: 44426+ PTR? 84.33.65.207.in-addr.arpa. (43)
+02:42:51.162181 IP 942.bm-nginx-loadbalancer.mgmt.ams3.adnexus.net.https > pop-os.50278: Flags [FP.], seq 46:77, ack 1, win 83, options [nop,nop,TS val 3291513233 ecr 3016025781], length 31
+02:42:51.202151 IP pop-os.50278 > 942.bm-nginx-loadbalancer.mgmt.ams3.adnexus.net.https: Flags [.], ack 78, win 567, options [nop,nop,TS val 3016085690 ecr 3291513233], length 0
+02:42:52.437141 IP pop-os.43856 > sof04s03-in-f3.1e100.net.https: Flags [.], ack 3908749002, win 906, options [nop,nop,TS val 2062062035 ecr 3695363060], length 0
+02:42:52.437172 IP pop-os.58848 > sof02s31-in-f1.1e100.net.https: Flags [.], ack 3236078779, win 654, options [nop,nop,TS val 3028231001 ecr 1689830009], length 0
+02:42:52.437176 IP pop-os.56868 > ws-in-f84.1e100.net.https: Flags [.], ack 3485362168, win 1530, options [nop,nop,TS val 3652935098 ecr 1434005219], length 0
+02:42:52.437181 IP pop-os.45288 > 104.18.32.47.https: Flags [.], ack 11494085, win 3779, options [nop,nop,TS val 4137649646 ecr 2829076020], length 0
+02:42:52.437185 IP pop-os.60872 > ams15s30-in-f1.1e100.net.https: Flags [.], ack 394335523, win 616, options [nop,nop,TS val 3471087931 ecr 2674018643], length 0
+02:42:52.437189 IP pop-os.39466 > sof04s06-in-f1.1e100.net.https: Flags [.], ack 1606263176, win 614, options [nop,nop,TS val 1640054650 ecr 1860631246], length 0
+02:42:52.447130 IP pop-os.41122 > server-3-160-57-20.ist50.r.cloudfront.net.https: Flags [.], ack 1274803960, win 606, options [nop,nop,TS val 858936091 ecr 633568323], length 0
+02:42:52.447160 IP pop-os.50042 > server-108-157-52-46.ist50.r.cloudfront.net.https: Flags [.], ack 146475747, win 2492, options [nop,nop,TS val 2099174577 ecr 547297891], length 0
+02:42:52.463148 IP pop-os.42632 > sof04s06-in-f2.1e100.net.https: Flags [.], ack 907595920, win 618, options [nop,nop,TS val 1050434765 ecr 3469477092], length 0
+02:42:52.465147 IP pop-os.57502 > sof04s06-in-f6.1e100.net.https: Flags [.], ack 923241655, win 618, options [nop,nop,TS val 2354776316 ecr 3881859952], length 0
+02:42:52.695680 IP sof02s31-in-f1.1e100.net.https > pop-os.58848: Flags [.], ack 1, win 1042, options [nop,nop,TS val 1689879061 ecr 3028043810], length 0
+02:42:52.695680 IP sof04s03-in-f3.1e100.net.https > pop-os.43856: Flags [.], ack 1, win 1043, options [nop,nop,TS val 3695412111 ecr 2061875299], length 0
+02:42:52.695680 IP server-108-157-52-46.ist50.r.cloudfront.net.https > pop-os.50042: Flags [.], ack 1, win 160, options [nop,nop,TS val 547342956 ecr 2098991048], length 0
+02:42:52.695681 IP server-3-160-57-20.ist50.r.cloudfront.net.https > pop-os.41122: Flags [.], ack 1, win 150, options [nop,nop,TS val 633613388 ecr 858753767], length 0
+02:42:52.695681 IP 104.18.32.47.https > pop-os.45288: Flags [.], ack 1, win 160, options [nop,nop,TS val 2829125088 ecr 4137464984], length 0
+02:42:52.695681 IP sof04s06-in-f2.1e100.net.https > pop-os.42632: Flags [.], ack 1, win 1039, options [nop,nop,TS val 3469522150 ecr 1050251135], length 0
+02:42:52.695983 IP sof04s06-in-f1.1e100.net.https > pop-os.39466: Flags [.], ack 1, win 1042, options [nop,nop,TS val 1860680321 ecr 1639869519], length 0
+02:42:52.695983 IP sof04s06-in-f6.1e100.net.https > pop-os.57502: Flags [.], ack 1, win 1042, options [nop,nop,TS val 3881905010 ecr 2354592127], length 0
+02:42:52.695983 IP ams15s30-in-f1.1e100.net.https > pop-os.60872: Flags [.], ack 1, win 1043, options [nop,nop,TS val 2674067711 ecr 3470903083], length 0
+02:42:52.695984 IP 185.106.33.48.https > pop-os.44326: Flags [F.], seq 3486371375, ack 445553373, win 74, length 0
+02:42:52.696021 IP pop-os.44326 > 185.106.33.48.https: Flags [.], ack 4294967219, win 609, options [nop,nop,sack 1 {0:1}], length 0
+02:42:52.695984 IP 185.106.33.48.https > pop-os.44326: Flags [P.], seq 4294967219:4294967265, ack 1, win 74, length 46
+02:42:52.696049 IP pop-os.44326 > 185.106.33.48.https: Flags [.], ack 4294967265, win 609, options [nop,nop,sack 1 {0:1}], length 0
+02:42:52.695984 IP 185.106.33.48.https > pop-os.44326: Flags [P.], seq 4294967265:0, ack 1, win 74, length 31
+02:42:52.696059 IP pop-os.44326 > 185.106.33.48.https: Flags [.], ack 1, win 609, length 0
+02:42:52.696365 IP ws-in-f84.1e100.net.https > pop-os.56868: Flags [.], ack 1, win 1036, options [nop,nop,TS val 1434054285 ecr 3652747362], length 0
+02:42:52.696585 IP pop-os.44326 > 185.106.33.48.https: Flags [F.], seq 1, ack 1, win 609, length 0
+02:42:53.002824 IP 185.106.33.48.https > pop-os.44326: Flags [.], ack 2, win 74, length 0
+02:42:54.231732 IP 8.214.60.171.https > pop-os.47322: Flags [P.], seq 837245091:837245137, ack 4031774024, win 72, length 46
+02:42:54.232053 IP 8.214.60.171.https > pop-os.47322: Flags [FP.], seq 46:77, ack 1, win 72, length 31
+02:42:54.232089 IP pop-os.47322 > 8.214.60.171.https: Flags [R.], seq 1, ack 78, win 622, length 0
+02:42:54.997329 IP pop-os.52026 > 108-174-10-31.fwd.linkedin.com.https: Flags [.], ack 2384723990, win 618, options [nop,nop,TS val 4178727921 ecr 4104564547], length 0
+02:42:55.382971 IP 108-174-10-31.fwd.linkedin.com.https > pop-os.52026: Flags [.], ack 1, win 7, options [nop,nop,TS val 4104609954 ecr 4178682919], length 0
+02:42:55.591486 IP pop-os.53874 > _gateway.domain: 43852+ PTR? 47.112.168.192.in-addr.arpa. (45)
+02:42:55.593331 IP 202.239.2.248.https > pop-os.41992: Flags [F.], seq 77, ack 1, win 24, options [nop,nop,TS val 3593976493 ecr 1257407867], length 0
+02:42:55.593364 IP pop-os.41992 > 202.239.2.248.https: Flags [.], ack 0, win 611, options [nop,nop,TS val 1257467330 ecr 3593965587,nop,nop,sack 1 {77:78}], length 0
+02:42:55.593331 IP 202.239.2.248.https > pop-os.41992: Flags [P.], seq 0:46, ack 1, win 24, options [nop,nop,TS val 3593976493 ecr 1257407867], length 46
+02:42:55.593381 IP pop-os.41992 > 202.239.2.248.https: Flags [.], ack 46, win 611, options [nop,nop,TS val 1257467330 ecr 3593976493,nop,nop,sack 1 {77:78}], length 0
+02:42:55.593614 IP 202.239.2.248.https > pop-os.41992: Flags [P.], seq 46:77, ack 1, win 24, options [nop,nop,TS val 3593976493 ecr 1257407867], length 31
+02:42:55.593624 IP pop-os.41992 > 202.239.2.248.https: Flags [.], ack 78, win 611, options [nop,nop,TS val 1257467330 ecr 3593976493], length 0
+02:42:55.595434 IP _gateway.domain > pop-os.53874: 43852 NXDomain 0/0/0 (45)
+02:42:56.178641 IP pop-os.58458 > _gateway.domain: 44426+ PTR? 84.33.65.207.in-addr.arpa. (43)
+02:42:56.383549 ARP, Request who-has pop-os tell _gateway, length 28
+02:42:56.383587 ARP, Reply pop-os is-at cc:47:40:f1:ce:77 (oui Unknown), length 28
+02:42:56.383550 IP bs.yandex.ru.https > pop-os.42156: Flags [.], ack 2087547031, win 166, options [nop,nop,TS val 2432232326 ecr 26389418], length 0
+02:42:56.383643 IP pop-os.42156 > bs.yandex.ru.https: Flags [.], ack 1, win 599, options [nop,nop,TS val 26450959 ecr 2432191763], length 0
+02:42:56.533345 IP pop-os.53098 > 195.175.180.96.static.turktelekom.com.tr.https: Flags [.], ack 1661765152, win 501, options [nop,nop,TS val 3806771406 ecr 1842548788], length 0
+02:42:56.533388 IP pop-os.48226 > 195.175.180.96.static.turktelekom.com.tr.https: Flags [.], ack 3953992302, win 618, options [nop,nop,TS val 3806771406 ecr 1842548787], length 0
+02:42:56.533394 IP pop-os.53110 > 195.175.180.96.static.turktelekom.com.tr.https: Flags [.], ack 2469310253, win 610, options [nop,nop,TS val 3806771406 ecr 1842548787], length 0
+02:42:56.533401 IP pop-os.58490 > server-3-160-57-35.ist50.r.cloudfront.net.https: Flags [.], ack 4024377303, win 624, options [nop,nop,TS val 3872892243 ecr 2651885451], length 0
+02:42:56.533407 IP pop-os.51606 > server-108-157-60-122.ist50.r.cloudfront.net.https: Flags [.], ack 1513724987, win 617, options [nop,nop,TS val 920731906 ecr 2785797739], length 0
+02:42:56.533413 IP pop-os.50662 > server-3-160-57-112.ist50.r.cloudfront.net.https: Flags [.], ack 3987333169, win 618, options [nop,nop,TS val 5944313 ecr 3745319461], length 0
+
