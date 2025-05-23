@@ -21,6 +21,7 @@ promiscuous mode da dinlenecektir.*/
   Gerçek eş zamanlılık sağlanır. 
 */
 
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -53,13 +54,13 @@ void *burst_worker(void *arg) {
 
     for (int i = 0; i < PORTS_PER_THREAD; i++) {
         snprintf((char *)payload[i], PAYLOAD_SIZE, "PORT%05d", base_port + i);
-        iovecs[i].iov_base = payload[i];
+        iovecs[i].iov_base = payload[i];       
         iovecs[i].iov_len  = PAYLOAD_SIZE;
 
         memset(&addrs[i], 0, sizeof(struct sockaddr_in));
         addrs[i].sin_family = AF_INET;
         addrs[i].sin_port = htons(base_port + i);
-        inet_pton(AF_INET, target_ip, &addrs[i].sin_addr);
+        inet_pton(AF_INET, target_ip, &addrs[i].sin_addr);//IP Stringini binary formata çevir
 
         memset(&msgs[i], 0, sizeof(struct mmsghdr));
         msgs[i].msg_hdr.msg_name = &addrs[i];

@@ -26,20 +26,62 @@ promiscuous mode da dinlenecektir.*/
 #include <pthread.h>
 #include <fcntl.h>
 
-#define MAX_PORT 65535
-#define MAX_THREADS 100
-#define PACKET_SIZE 4096
-#define TIMEOUT 5
+#define THREAD_COUNT 128
+#define PORTS_PER_THREAD 512
+#define PAYLOAD_SIZE 20
 
-typedef struct {
-    uint16_t port;
-    int sockfd;
-} thread_data_t;
+const char *target_ip = "";
 
-struct sockaddr server;
-thread_data_t sockets[MAX_THREADS];
-thread_data_t *socket_list[MAX_THREADS];
+void *burster(void *arg){
+    int base_port = *(int *)args;
+	int sock = socket(AF_INET, SOCK_DGRAM, 0);
+	if(sock < 0){
+		perror("Socket failure");
+		pthread_exit(NULL);
+	}
 
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+	struct mmsghed msgs[PORTS_PER_THREAD];
+	struct iovec iov[PORTS_PER_THREAD];
+	struct sockaddr_in addrs[PORTS_PER_THREAD];
+	uint8_t payload[PORTS_PER_THREAD][PAYLOAD_SIZE];
 
-void send_request(int idx){}
+		for(int i = 0; i < PORTS_PER_THREAD ;i++){
+	    	snprintf((char *)payload[i], PAYLOAD_SIZE, "PORT%05d", base_port + i);
+			iov[i].iov_base = payload[i];
+			iov[i].iov_len = PAYLOAD_SIZE;
+
+			memset(&addrs[i], 0, sizeof(struct sockaddr_in));
+			addrs[i].sin_family = AF_INET;
+			addrs[i].sin_port = htons(base_port + 1);
+			inet_pton(AF_INET, target_ip, &addrs[i].sin_addr);
+
+			memset(&msgs[i], o, sizeof(struct mmsghdr));
+			msgs[i].msg_hdr.msg_name = &addrs[i];
+			msg[i].msg_hdr.msg_namelen = sizeof(struct sockaddr_in);
+			msg[i].msg_hdr.msg_iov = &iov[i];
+			msg[i].msg_hdr.msg_iovlen = 1;
+		}
+
+		int sent = sendmmsh(sock, msgs, PORTS_PER_THREAD, 0);
+	    printf("[Thread %d] Sent %d UDP packets (ports %d-%d)\n", base_port / PORTS_PER_THREAD, sent, base_port, base_port + PORTS_PER_THREAD - 1);
+
+		close(sock);
+		pthread_exit(NULL);
+}
+
+	int main(){
+		pthread_t threads[THREAD_COUNT];
+		int base_ports[THREAD_COUNT];
+
+		for(int i = 0; i < THREAD_COUNT; i++){
+			base_ports[i]  = i * PORTS_PER_THREAD;
+			pthread_create(&threads[i], NULL, burster, &base_ports[i]);
+		}
+		for (int i = 0; i < THREAD_COUNT; i++) {
+		     pthread_join(threads[i], NULL);
+		 }
+
+		 printf("[+] Burst wave complete.\n");
+		   return 0;
+	}
+
