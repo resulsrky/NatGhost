@@ -48,7 +48,8 @@ def send_udp_flood(dst_ip, dst_port, src_port=4444, count=20, delay=0.1, payload
     print(f"[+] UDP flood done in {elapsed:.2f} seconds.")
     
 # Doğrudan çalıştırma örneği
+# udp_flooder.py
 if __name__ == "__main__":
     target = input("Target IP: ")
-    port = input("\nTarget Port: ")
+    port = int(input("\nTarget Port: "))  # DÜZENLENDİ
     send_udp_flood(dst_ip=target, dst_port=port, src_port=4444, count=10, delay=0.1, payload="hello_natsniff")

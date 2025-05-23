@@ -73,8 +73,8 @@ def adaptive_probe(dst_ip, dst_port, spoofed_ips=None, src_ports=None, delay=0.0
     print("[+] Probing completed. Run nat_sniffer.py to analyze responses.")
 
 # Eğer direkt çalıştırılırsa
+# adaptive_probe.py
 if __name__ == "__main__":
     target = input("Target IP: \n")
-    port = input("Target Port: \n
+    port = int(input("Target Port: \n"))  # DÜZENLENDİ
     adaptive_probe(dst_ip=target, dst_port=port)
-
