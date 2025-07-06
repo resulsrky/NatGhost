@@ -32,12 +32,22 @@ promiscuous mode da dinlenecektir.*/
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <sys/types.h>
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include <errno.h>
 
 #define THREAD_COUNT 128
 #define PORTS_PER_THREAD 512
 #define PAYLOAD_SIZE 20
 
-const char *target_ip = "192.0.2.1"; // HEDEF IP BURAYA YAZ
+#define SHARE_NAME "/shrmem"
+
+typedef struct {
+	char targetIP[128];
+	char myIP[128];
+
+}burstInfo;
+
 
 void *burst_worker(void *arg) {
     int base_port = *(int*)arg;
@@ -77,6 +87,38 @@ void *burst_worker(void *arg) {
 }
 
 int main() {
+   
+    int shm = shm_open(SHARE_NAME, I_RDONLY, 0666);
+    if(shm == -1){perror("shm_open"); return -1;}
+	    // 2. Boyut kontrolü (güvenli map için)
+    struct stat sb;
+    if (fstat(shm, &sb) == -1) {
+        perror("fstat");
+        close(shm);
+        return 2;
+    }
+
+    size_t mem_size = sb.st_size;
+    printf("Segment size: %ld bytes\n", mem_size);
+
+    // 3. mmap ile memory map et
+    void *map = mmap(NULL, mem_size, PROT_READ, MAP_SHARED, shm, 0);
+    if (map == MAP_FAILED) {
+        perror("mmap");
+        close(shm);
+        return 3;
+    }
+
+
+
+
+
+
+
+
+
+
+
     pthread_t threads[THREAD_COUNT];
     int base_ports[THREAD_COUNT];
 
