@@ -52,6 +52,8 @@ static int cmp_rtt(const void *pa, const void *pb) {
 
 void load_stun_servers() {
     const char *servers[] = {
+        "stun.l.google.com","stun1.l.google.com","stun2.l.google.com",
+        "stun3.l.google.com","stun4.l.google.com",
         "stun.voipbuster.com", "stun.voipstunt.com", "stun.voipzoom.com",
         "stun.linphone.org",  "stun.antisip.com",   "stun.gmx.net",
         "stun.sipnet.net",    "stun.12voip.com",    "stun.3cx.com",
