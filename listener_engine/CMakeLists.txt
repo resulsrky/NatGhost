@@ -3,39 +3,33 @@ cmake_minimum_required(VERSION 3.10)
 project(listener_engine C)
 set(CMAKE_C_STANDARD 11)
 
-# --- Npcap Kütüphanesini Bulma (Hata Düzeltilmiş Hali) ---
-# Npcap SDK'nın kurulabileceği olası yolları doğrudan listeliyoruz.
-# Ortam değişkenleri bazı sistemlerde sorun çıkarabildiği için bu yöntem daha güvenilirdir.
-set(NPCAP_SDK_POSSIBLE_PATHS
-        "C:/Program Files/npcap-sdk-1.15"  # Senin bilgisayarındaki onaylanmış yol
-        "C:/Program Files/Npcap-SDK"
-        "C:/Program Files (x86)/Npcap-SDK"
-)
+# --- Npcap Kütüphanesini Bulma (En Güvenilir Yöntem) ---
+# Npcap SDK'nın senin bilgisayarındaki tam yolunu bir değişkene atıyoruz.
+set(NPCAP_SDK_PATH "C:/Program Files/npcap-sdk-1.15")
 
-# pcap.h başlık dosyasını bu yollarda arıyoruz.
-find_path(PCAP_INCLUDE_DIR pcap.h
-        PATHS ${NPCAP_SDK_POSSIBLE_PATHS}
-        PATH_SUFFIXES Include # Klasör adı 'Include' (büyük harfle)
-)
-
-# wpcap.lib kütüphane dosyasını bu yollarda arıyoruz.
-find_library(PCAP_LIBRARY NAMES wpcap
-        PATHS ${NPCAP_SDK_POSSIBLE_PATHS}
-        PATH_SUFFIXES Lib/x64 Lib # 64-bit ve 32-bit için
-)
-
-# Eğer başlık dosyası veya kütüphane bulunamazsa, kullanıcıya ne yapacağını söyleyen bir hata ver ve dur.
-if(NOT PCAP_INCLUDE_DIR OR NOT PCAP_LIBRARY)
-    message(FATAL_ERROR "Npcap SDK bulunamadi! Lutfen Npcap'i 'Install the Npcap SDK' secenegi isaretli olarak kurdugunuzdan emin olun. Kurulum yolu genellikle 'C:/Program Files/npcap-sdk-...' seklindedir.")
+# Bu klasörün var olup olmadığını kontrol ediyoruz.
+if(NOT EXISTS "${NPCAP_SDK_PATH}")
+    message(FATAL_ERROR "Npcap SDK su yolda bulunamadi: ${NPCAP_SDK_PATH}\nLutfen Npcap'i 'Install the Npcap SDK' secenegi isaretli olarak kurdugunuzdan emin olun.")
 endif()
 
-message(STATUS "Npcap SDK bulundu: ${PCAP_INCLUDE_DIR}")
+# Npcap başlık dosyalarının olduğu klasörü DOĞRUDAN ekliyoruz.
+include_directories(${NPCAP_SDK_PATH}/Include)
+
+# HATA ÇÖZÜMÜ: Linker'a kütüphanenin tam yolunu veriyoruz.
+# Önce 64-bit klasörünü, sonra 32-bit klasörünü kontrol ediyoruz.
+if(EXISTS "${NPCAP_SDK_PATH}/Lib/x64/wpcap.lib")
+    set(PCAP_LIBRARY_PATH "${NPCAP_SDK_PATH}/Lib/x64/wpcap.lib")
+    message(STATUS "64-bit Npcap kütüphanesi bulundu.")
+elseif(EXISTS "${NPCAP_SDK_PATH}/Lib/wpcap.lib")
+    set(PCAP_LIBRARY_PATH "${NPCAP_SDK_PATH}/Lib/wpcap.lib")
+    message(STATUS "32-bit Npcap kütüphanesi bulundu.")
+else()
+    message(FATAL_ERROR "wpcap.lib kütüphanesi Npcap SDK klasöründe bulunamadi!")
+endif()
 
 # --- Proje Yapılandırması ---
 # Kendi başlık dosyalarımızın olduğu klasörü ekliyoruz.
 include_directories(include)
-# Bulunan Npcap başlık dosyalarının olduğu klasörü ekliyoruz.
-include_directories(${PCAP_INCLUDE_DIR})
 
 # Çalıştırılabilir dosyayı ve kaynak dosyalarını tanımlıyoruz.
 add_executable(
@@ -44,4 +38,5 @@ add_executable(
 )
 
 # Gerekli kütüphaneleri programımıza bağlıyoruz.
-target_link_libraries(listener_engine PRIVATE ws2_32 ${PCAP_LIBRARY})
+# Artık sadece kütüphane adını değil, tam yolunu veriyoruz.
+target_link_libraries(listener_engine PRIVATE ws2_32 "${PCAP_LIBRARY_PATH}")
