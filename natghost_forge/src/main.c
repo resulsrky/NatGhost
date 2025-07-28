@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
         run_worker_from_args(argc, argv);
     } else {
         // Argüman yoksa bu ANA process'tir.
-        run_master(argv[0], "192.168.1.153", "8.8.8.8");
+        run_master(argv[0], "192.168.1.15", "192.168.1.254");
     }
 
     WSACleanup();

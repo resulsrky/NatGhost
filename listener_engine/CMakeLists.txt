@@ -39,4 +39,4 @@ add_executable(
 
 # Gerekli kütüphaneleri programımıza bağlıyoruz.
 # Artık sadece kütüphane adını değil, tam yolunu veriyoruz.
-target_link_libraries(listener_engine PRIVATE ws2_32 "${PCAP_LIBRARY_PATH}")
+target_link_libraries(listener_engine PRIVATE ws  2_32 "${PCAP_LIBRARY_PATH}")
